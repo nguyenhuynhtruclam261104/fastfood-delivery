@@ -37,9 +37,13 @@ jobs:
       - name: 🐳 Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: 🔨 Build all backend Docker images
+      - name: ⚙️ Install Docker Compose
         run: |
-          docker-compose build
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: 🔨 Build all backend Docker images
+        run: docker-compose build
 
       - name: 🔭 Verify monitoring stack
         run: |
