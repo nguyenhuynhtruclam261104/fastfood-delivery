@@ -1,19 +1,24 @@
 global:
-  scrape_interval: 5s
+  scrape_interval: 15s
+  evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'product-service'
+  - job_name: 'prometheus'
     static_configs:
-      - targets: ['product-service:8002']
+      - targets: ['prometheus:9090']
 
-  - job_name: 'payment-service'
+  - job_name: 'cadvisor'
+    metrics_path: /metrics
     static_configs:
-      - targets: ['payment-service:8003']
+      - targets: ['cadvisor:8080']
 
-  - job_name: 'order-service'
+  # Theo dõi các service chính (nếu có metrics endpoint)
+  - job_name: 'fastfood-services'
+    metrics_path: /metrics
     static_configs:
-      - targets: ['order-service:8000']
-
-  - job_name: 'user-service'
-    static_configs:
-      - targets: ['user-service:8001']
+      - targets: [
+          'order-service:8001',
+          'payment-service:8002',
+          'product-service:8003',
+          'user-service:8004'
+        ]

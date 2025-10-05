@@ -1,31 +1,48 @@
-version: "3.9"
+version: "3.8"
 
 services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-      - fastfood-net
+      - monitoring
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana-oss:latest
     container_name: grafana
-    ports:
-      - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-storage:/var/lib/grafana
     depends_on:
       - prometheus
     networks:
-      - fastfood-net
+      - monitoring
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - monitoring
+
+volumes:
+  grafana-storage:
 
 networks:
-  fastfood-net:
-    external: true
-    name: fastfood-delivery_fastfood-net
-
-
+  monitoring:
+    driver: bridge
