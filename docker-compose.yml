@@ -1,38 +1,102 @@
 version: "3.8"
 
 services:
-  user-service:
-    build: ./backend/user-service
-    container_name: user-service
-    ports:
-      - "8004:8000"
-    volumes:
-      - ./backend/user-service/db:/app/db
-    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
-
-  product-service:
-    build: ./backend/product-service
-    container_name: product-service
-    ports:
-      - "8002:8002"
-    volumes:
-      - ./backend/product-service/db:/app/db
-    command: "uvicorn main:app --host 0.0.0.0 --port 8002"
-
+  # ===== Order Service =====
   order-service:
     build: ./backend/order-service
     container_name: order-service
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend/order-service/db:/app/db
     command: "uvicorn main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+    networks:
+      - fastfood-net
 
+  # ===== User Service =====
+  user-service:
+    build: ./backend/user-service
+    container_name: user-service
+    ports:
+      - "8004:8000"
+    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+    networks:
+      - fastfood-net
+
+  # ===== Product Service =====
+  product-service:
+    build: ./backend/product-service
+    container_name: product-service
+    ports:
+      - "8002:8002"
+    command: "uvicorn main:app --host 0.0.0.0 --port 8002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+    networks:
+      - fastfood-net
+
+  # ===== Payment Service =====
   payment-service:
     build: ./backend/payment-service
     container_name: payment-service
     ports:
       - "8003:8003"
-    volumes:
-      - ./backend/payment-service/db:/app/db
     command: "uvicorn main:app --host 0.0.0.0 --port 8003"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+    networks:
+      - fastfood-net
+
+  # ===== cAdvisor =====
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - fastfood-net
+
+  # ===== Prometheus =====
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - fastfood-net
+
+  # ===== Grafana =====
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - fastfood-net
+
+networks:
+  fastfood-net:
+    external: false
