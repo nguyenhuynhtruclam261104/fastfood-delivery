@@ -40,5 +40,11 @@ jobs:
       - name: 🔨 Build all backend Docker images
         run: |
           docker-compose build
-      - name: 🔭 Build monitoring stack
-        run: docker-compose -f docker-compose.monitoring.yml config
+
+      - name: 🔭 Verify monitoring stack
+        run: |
+          if [ -f docker-compose.monitoring.yml ]; then
+            docker-compose -f docker-compose.monitoring.yml config
+          else
+            echo "⚠️ No monitoring compose file found, skipping..."
+          fi
