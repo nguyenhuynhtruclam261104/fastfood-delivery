@@ -6,29 +6,21 @@ services:
     container_name: order-service
     ports:
       - "8000:8000"
-    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
 
   user-service:
     build: ./backend/user-service
     container_name: user-service
     ports:
       - "8001:8001"
-    command: "uvicorn main:app --host 0.0.0.0 --port 8001"
 
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  product-service:
+    build: ./backend/product-service
+    container_name: product-service
     ports:
-      - "9090:9090"
+      - "8002:8002"
 
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+  payment-service:
+    build: ./backend/payment-service
+    container_name: payment-service
     ports:
-      - "3000:3000"
-    volumes:
-      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - "8003:8003"
