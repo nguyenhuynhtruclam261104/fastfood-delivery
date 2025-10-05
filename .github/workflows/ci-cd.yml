@@ -2,29 +2,43 @@ name: CI/CD Fastfood Delivery
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: 🧭 Checkout source code
+        uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-      - name: Build Order Service
-        run: docker build ./backend/order-service -t order-service:latest
+      - name: 🔧 Install dependencies for each service
+        run: |
+          for svc in backend/order-service backend/user-service backend/product-service backend/payment-service; do
+            echo "Installing requirements for $svc"
+            pip install -r $svc/requirements.txt
+          done
 
-      - name: Build User Service
-        run: docker build ./backend/user-service -t user-service:latest
+      - name: 🧪 Run syntax check
+        run: |
+          for svc in backend/*; do
+            echo "Checking syntax in $svc"
+            python -m py_compile $svc/*.py
+          done
 
-      - name: Build Product Service
-        run: docker build ./backend/product-service -t product-service:latest
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Build Payment Service
-        run: docker build ./backend/payment-service -t payment-service:latest
+      - name: 🔨 Build all backend Docker images
+        run: |
+          docker-compose build
+      - name: 🔭 Build monitoring stack
+        run: docker-compose -f docker-compose.monitoring.yml config
