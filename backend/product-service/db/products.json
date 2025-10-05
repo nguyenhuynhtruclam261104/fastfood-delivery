@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name": "Pizza",
+    "price": 50.0,
+    "category": "Fastfood"
+  },
+  {
+    "id": 2,
+    "name": "Pizza",
+    "price": 50.0,
+    "category": "Fastfood"
+  }
+]
