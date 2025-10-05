@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}/fastfood
-
 jobs:
   setup-buildx:
     runs-on: ubuntu-latest
@@ -32,22 +28,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build & Push Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./backend/${{ matrix.service }}
-          file: ./backend/${{ matrix.service }}/Dockerfile
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:${{ github.sha }}
+      - name: Build Docker image (local only)
+        run: docker build -t fastfood-${{ matrix.service }} ./backend/${{ matrix.service }}
 
   smoke-test:
     runs-on: ubuntu-latest
