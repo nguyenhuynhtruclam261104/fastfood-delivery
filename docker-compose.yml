@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   order-service:
     build: ./backend/order-service
@@ -5,6 +7,11 @@ services:
     ports:
       - "8000:8000"
     command: "uvicorn main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - fastfood-net
 
@@ -12,8 +19,13 @@ services:
     build: ./backend/user-service
     container_name: user-service
     ports:
-      - "8001:8001"
-    command: "uvicorn main:app --host 0.0.0.0 --port 8001"
+      - "8004:8000"
+    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - fastfood-net
 
@@ -23,6 +35,11 @@ services:
     ports:
       - "8002:8002"
     command: "uvicorn main:app --host 0.0.0.0 --port 8002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - fastfood-net
 
@@ -32,6 +49,11 @@ services:
     ports:
       - "8003:8003"
     command: "uvicorn main:app --host 0.0.0.0 --port 8003"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - fastfood-net
 
