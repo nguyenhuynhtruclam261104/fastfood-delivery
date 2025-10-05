@@ -1,19 +1,14 @@
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
-app = FastAPI()
+app = FastAPI(title="Product Service")
 
-products = []
+Instrumentator().instrument(app).expose(app)
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
 @app.post("/product")
-def create_product(name: str, price: float):
-    product = {"name": name, "price": price}
-    products.append(product)
-    return {"message": "Product added", "product": product}
-
-@app.get("/products")
-def list_products():
-    return {"products": products}
+def add_product(name: str, price: float):
+    return {"message": "Product added", "product": {"name": name, "price": price}}

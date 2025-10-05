@@ -1,8 +1,10 @@
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
-app = FastAPI()
+app = FastAPI(title="Order Service")
 
-orders = []
+# Tích hợp Prometheus metrics
+Instrumentator().instrument(app).expose(app)
 
 @app.get("/health")
 def health():
@@ -10,6 +12,4 @@ def health():
 
 @app.post("/order")
 def create_order(item_id: int, quantity: int):
-    order = {"item_id": item_id, "quantity": quantity}
-    orders.append(order)
-    return {"message": "Order received", "order": order}
+    return {"message": "Order created", "order": {"item_id": item_id, "quantity": quantity}}
