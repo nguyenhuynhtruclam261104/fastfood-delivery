@@ -77,3 +77,4 @@ Uvicorn trong container port = container port.
 Host port trong docker-compose.yml có thể khác để tránh conflict.
 
 Healthcheck + sleep trong CI/CD đảm bảo service khởi động kịp trước khi test.
+téttttttt
