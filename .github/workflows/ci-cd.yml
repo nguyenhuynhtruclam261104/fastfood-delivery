@@ -54,7 +54,7 @@ jobs:
       - name: Check services health
         run: |
           echo "🧪 Kiểm tra các service..."
-          curl --fail http://localhost:8000/health || exit 1
+          curl --fail http://localhost:8010/health || exit 1
           curl --fail http://localhost:8003/health || exit 1
           curl --fail http://localhost:8002/health || exit 1
           curl --fail http://localhost:8004/health || exit 1
